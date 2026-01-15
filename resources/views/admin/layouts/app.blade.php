@@ -1503,6 +1503,10 @@
                     <span class="nav-icon">🐔</span>
                     Manajemen Stok
                 </a>
+                <a href="{{ route('admin.transactions.index') }}" class="nav-item {{ request()->routeIs('admin.transactions.*') ? 'active' : '' }}">
+                    <span class="nav-icon">💰</span>
+                    Transaksi
+                </a>
                 <a href="{{ route('admin.configs.index') }}" class="nav-item {{ request()->routeIs('admin.configs.*') ? 'active' : '' }}">
                     <span class="nav-icon">⚙️</span>
                     Konfigurasi

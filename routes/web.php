@@ -4,6 +4,7 @@ use App\Http\Controllers\Admin\AuthController;
 use App\Http\Controllers\Admin\ChickenStockController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\GeneralConfigController;
+use App\Http\Controllers\Admin\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 // Landing Page
@@ -23,8 +24,16 @@ Route::prefix('admin')->group(function () {
     Route::middleware('auth:admin')->group(function () {
         Route::post('logout', [AuthController::class, 'logout'])->name('admin.logout');
         Route::get('/', [DashboardController::class, 'index'])->name('admin.dashboard');
+        
+        // Stocks
         Route::get('stocks/export', [ChickenStockController::class, 'export'])->name('admin.stocks.export');
         Route::resource('stocks', ChickenStockController::class)->names('admin.stocks');
+        
+        // Transactions
+        Route::get('transactions/export', [TransactionController::class, 'export'])->name('admin.transactions.export');
+        Route::resource('transactions', TransactionController::class)->names('admin.transactions');
+        
+        // Configs
         Route::resource('configs', GeneralConfigController::class)->names('admin.configs')->except(['show']);
     });
 });

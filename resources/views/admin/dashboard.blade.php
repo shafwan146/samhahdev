@@ -122,7 +122,11 @@
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Dummy data for sales chart
+    // Real data from database
+    const monthlySalesData = @json($monthlySales);
+    const ayamPelungData = monthlySalesData.map(item => item.ayam_pelung);
+    const pitikPelungData = monthlySalesData.map(item => item.pitik_pelung);
+
     const ctx = document.getElementById('salesChart').getContext('2d');
     const salesChart = new Chart(ctx, {
         type: 'line',
@@ -131,7 +135,7 @@
             datasets: [
                 {
                     label: 'Ayam Pelung (ekor)',
-                    data: [45, 52, 38, 65, 72, 58, 80, 95, 88, 102, 75, 110],
+                    data: ayamPelungData,
                     borderColor: '#2E7D32',
                     backgroundColor: 'rgba(46, 125, 50, 0.1)',
                     tension: 0.4,
@@ -139,7 +143,7 @@
                 },
                 {
                     label: 'Pitik Pelung (ekor)',
-                    data: [120, 135, 110, 145, 160, 140, 175, 190, 180, 210, 195, 230],
+                    data: pitikPelungData,
                     borderColor: '#E65100',
                     backgroundColor: 'rgba(230, 81, 0, 0.1)',
                     tension: 0.4,

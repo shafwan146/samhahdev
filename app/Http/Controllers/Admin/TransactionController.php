@@ -56,8 +56,10 @@ class TransactionController extends Controller
         }
 
         $transactions = $query->paginate(15)->withQueryString();
+        $productTypes = GeneralConfig::getProductTypes();
+        $ageVariants = GeneralConfig::getAgeVariants();
 
-        return view('admin.transactions.index', compact('transactions'));
+        return view('admin.transactions.index', compact('transactions', 'productTypes', 'ageVariants'));
     }
 
     public function create()
@@ -66,7 +68,21 @@ class TransactionController extends Controller
         $ageVariants = GeneralConfig::getAgeVariants();
         $transactionCode = Transaction::generateCode();
         
-        return view('admin.transactions.create', compact('productTypes', 'ageVariants', 'transactionCode'));
+        $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity')
+            ->groupBy('product_type', 'age_variant')
+            ->get();
+            
+        $availableStocks = [];
+        foreach ($stocks as $stock) {
+            if ($stock->total_quantity > 0) {
+                if (!isset($availableStocks[$stock->product_type])) {
+                    $availableStocks[$stock->product_type] = [];
+                }
+                $availableStocks[$stock->product_type][$stock->age_variant] = $stock->total_quantity;
+            }
+        }
+        
+        return view('admin.transactions.create', compact('productTypes', 'ageVariants', 'transactionCode', 'availableStocks'));
     }
 
     public function store(Request $request)
@@ -88,6 +104,15 @@ class TransactionController extends Controller
 
         $validated['total_price'] = $validated['quantity'] * $validated['unit_price'];
 
+        // Cek apakah stok mencukupi
+        $totalStock = ChickenStock::where('product_type', $validated['product_type'])
+            ->where('age_variant', $validated['age_variant'])
+            ->sum('quantity');
+
+        if ($totalStock < $validated['quantity']) {
+            return back()->withInput()->withErrors(['quantity' => 'Stok tidak mencukupi. Sisa stok: ' . $totalStock]);
+        }
+
         // Kurangi stok barang
         $this->adjustStock($validated['product_type'], $validated['age_variant'], -$validated['quantity']);
 
@@ -103,7 +128,31 @@ class TransactionController extends Controller
         $productTypes = GeneralConfig::getProductTypes();
         $ageVariants = GeneralConfig::getAgeVariants();
         
-        return view('admin.transactions.edit', compact('transaction', 'productTypes', 'ageVariants'));
+        $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity')
+            ->groupBy('product_type', 'age_variant')
+            ->get();
+            
+        $availableStocks = [];
+        foreach ($stocks as $stock) {
+            $qty = $stock->total_quantity;
+            // Tambahkan kuantitas dari transaksi saat ini agar bisa dipilih ulang tanpa validasi error
+            if ($transaction->product_type === $stock->product_type && $transaction->age_variant === $stock->age_variant) {
+                $qty += $transaction->quantity;
+            }
+            if ($qty > 0) {
+                if (!isset($availableStocks[$stock->product_type])) {
+                    $availableStocks[$stock->product_type] = [];
+                }
+                $availableStocks[$stock->product_type][$stock->age_variant] = $qty;
+            }
+        }
+        
+        // Jika tidak ada di stok sama sekali, tapi ada di transaksi ini (misal stok awal memang 0 tanpa transaksi lain)
+        if (!isset($availableStocks[$transaction->product_type][$transaction->age_variant])) {
+            $availableStocks[$transaction->product_type][$transaction->age_variant] = $transaction->quantity;
+        }
+        
+        return view('admin.transactions.edit', compact('transaction', 'productTypes', 'ageVariants', 'availableStocks'));
     }
 
     public function update(Request $request, Transaction $transaction)
@@ -123,6 +172,21 @@ class TransactionController extends Controller
         ]);
 
         $validated['total_price'] = $validated['quantity'] * $validated['unit_price'];
+
+        // Cek apakah stok baru mencukupi
+        $totalStock = ChickenStock::where('product_type', $validated['product_type'])
+            ->where('age_variant', $validated['age_variant'])
+            ->sum('quantity');
+
+        $availableStock = $totalStock;
+        // Jika produk dan umur sama dengan transaksi sebelumnya, berarti stok yang dipakai sebelumnya akan dikembalikan terlebih dahulu
+        if ($transaction->product_type === $validated['product_type'] && $transaction->age_variant === $validated['age_variant']) {
+            $availableStock += $transaction->quantity;
+        }
+
+        if ($availableStock < $validated['quantity']) {
+            return back()->withInput()->withErrors(['quantity' => 'Stok tidak mencukupi. Sisa stok yang bisa digunakan: ' . $availableStock]);
+        }
 
         // Kembalikan stok lama
         $this->adjustStock($transaction->product_type, $transaction->age_variant, $transaction->quantity);

@@ -106,11 +106,7 @@
                             required
                         >
                             <option value="">-- Pilih Jenis Produk --</option>
-                            @foreach($productTypes as $key => $label)
-                                <option value="{{ $key }}" {{ old('product_type') === $key ? 'selected' : '' }}>
-                                    {{ $label }}
-                                </option>
-                            @endforeach
+                            <!-- Pilihan diisi lewat Javascript -->
                         </select>
                         @error('product_type')
                             <span class="form-error">{{ $message }}</span>
@@ -126,11 +122,7 @@
                             required
                         >
                             <option value="">-- Pilih Varian Umur --</option>
-                            @foreach($ageVariants as $key => $label)
-                                <option value="{{ $key }}" {{ old('age_variant') === $key ? 'selected' : '' }}>
-                                    {{ $label }}
-                                </option>
-                            @endforeach
+                            <!-- Pilihan diisi lewat Javascript -->
                         </select>
                         @error('age_variant')
                             <span class="form-error">{{ $message }}</span>
@@ -205,3 +197,100 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const availableStocks = @json($availableStocks);
+        const productTypes = @json($productTypes);
+        const ageVariants = @json($ageVariants);
+
+        const productTypeSelect = document.getElementById('product_type');
+        const ageVariantSelect = document.getElementById('age_variant');
+        const quantityInput = document.getElementById('quantity');
+        
+        const oldProductType = '{{ old('product_type') }}';
+        const oldAgeVariant = '{{ old('age_variant') }}';
+        
+        // Element untuk hint kuantitas maksimal
+        const quantityHint = document.createElement('small');
+        quantityHint.className = 'form-text text-muted';
+        quantityHint.style.display = 'block';
+        quantityHint.style.marginTop = '0.25rem';
+        quantityInput.parentNode.appendChild(quantityHint);
+
+        // 1. Populate Jenis Produk berdasarkan stok yang lebih dari 0
+        function populateProductTypes() {
+            productTypeSelect.innerHTML = '<option value="">-- Pilih Jenis Produk --</option>';
+            for (const [key, label] of Object.entries(productTypes)) {
+                if (availableStocks[key] && Object.keys(availableStocks[key]).length > 0) {
+                    const option = document.createElement('option');
+                    option.value = key;
+                    option.textContent = label;
+                    if (key === oldProductType) option.selected = true;
+                    productTypeSelect.appendChild(option);
+                }
+            }
+        }
+
+        // 2. Populate Varian Umur berdasarkan Jenis Produk yang dipilih
+        function populateAgeVariants() {
+            const selectedProduct = productTypeSelect.value;
+            ageVariantSelect.innerHTML = '<option value="">-- Pilih Varian Umur --</option>';
+            
+            if (selectedProduct && availableStocks[selectedProduct]) {
+                const availableAges = availableStocks[selectedProduct];
+                for (const [key, label] of Object.entries(ageVariants)) {
+                    if (availableAges[key] !== undefined && availableAges[key] > 0) {
+                        const option = document.createElement('option');
+                        option.value = key;
+                        option.textContent = `${label} (Stok: ${availableAges[key]})`;
+                        if (key === oldAgeVariant) option.selected = true;
+                        ageVariantSelect.appendChild(option);
+                    }
+                }
+            }
+            updateMaxQuantity();
+        }
+
+        // 3. Batasi Quantity input berdasarkan varian yang dipilih
+        function updateMaxQuantity() {
+            const pType = productTypeSelect.value;
+            const aVar = ageVariantSelect.value;
+
+            if (pType && aVar && availableStocks[pType] && availableStocks[pType][aVar] !== undefined) {
+                const maxStock = availableStocks[pType][aVar];
+                quantityInput.max = maxStock;
+                quantityHint.textContent = `Maksimal stok tersedia untuk varian ini: ${maxStock} ekor`;
+                
+                // Pastikan input tidak melebihi stok
+                if (parseInt(quantityInput.value) > maxStock) {
+                    quantityInput.value = maxStock;
+                }
+            } else {
+                quantityInput.max = '';
+                quantityHint.textContent = '';
+            }
+        }
+
+        productTypeSelect.addEventListener('change', populateAgeVariants);
+        ageVariantSelect.addEventListener('change', updateMaxQuantity);
+
+        quantityInput.addEventListener('input', function() {
+            if (this.max) {
+                const max = parseInt(this.max);
+                const val = parseInt(this.value);
+                if (val > max) {
+                    this.value = max;
+                }
+            }
+        });
+
+        // Initialize
+        populateProductTypes();
+        if (oldProductType) {
+            populateAgeVariants();
+        }
+    });
+</script>
+@endpush

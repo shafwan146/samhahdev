@@ -65,7 +65,6 @@
                                             </div>
                                             <div class="table-product-info">
                                                 <div class="table-product-name">{{ $stock->product_name }}</div>
-                                                <div class="table-product-meta">ID: #{{ $stock->id }}</div>
                                             </div>
                                         </div>
                                     </td>

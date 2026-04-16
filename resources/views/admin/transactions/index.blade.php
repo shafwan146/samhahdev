@@ -71,9 +71,12 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge {{ $transaction->product_type === 'ayam_pelung' ? 'badge-green' : 'badge-orange' }}">
-                                            {{ $transaction->product_type === 'ayam_pelung' ? '🐓 Ayam' : '🐣 Pitik' }}
-                                        </span>
+                                        <div style="font-weight: 500;">
+                                            {{ $productTypes[$transaction->product_type] ?? ucwords(str_replace('_', ' ', $transaction->product_type)) }}
+                                        </div>
+                                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">
+                                            {{ $ageVariants[$transaction->age_variant] ?? ucwords(str_replace('_', ' ', $transaction->age_variant)) }}
+                                        </div>
                                     </td>
                                     <td class="font-bold">{{ number_format($transaction->quantity) }}</td>
                                     <td class="whitespace-nowrap font-bold">{{ $transaction->formatted_total_price }}</td>

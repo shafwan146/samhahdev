@@ -10,8 +10,39 @@ use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Maatwebsite\Excel\Facades\Excel;
 
+use App\Models\ChickenStock;
+
 class TransactionController extends Controller
 {
+    /**
+     * Helper to adjust stock quantity automatically.
+     * $quantityChange can be negative (for sales/deduction) or positive (for reverting/cancellation).
+     */
+    private function adjustStock($productType, $ageVariant, $quantityChange)
+    {
+        if ($quantityChange == 0) return;
+
+        // Cari stok dengan tipe dan varian umur yang sama
+        $stock = ChickenStock::where('product_type', $productType)
+            ->where('age_variant', $ageVariant)
+            ->orderBy('id', 'asc') // Utamakan stok yang paling lama dibuat (FIFO simple)
+            ->first();
+
+        if ($stock) {
+            $stock->quantity += $quantityChange;
+            $stock->save();
+        } else {
+            // Jika belum ada stok sama sekali tapi ada transaksi
+            ChickenStock::create([
+                'product_type' => $productType,
+                'age_variant' => $ageVariant,
+                'product_name' => GeneralConfig::getProductTypeLabel($productType) ?? 'Produk Baru',
+                'quantity' => $quantityChange,
+                'price' => 0,
+            ]);
+        }
+    }
+
     public function index(Request $request)
     {
         $query = Transaction::orderBy('transaction_date', 'desc')
@@ -57,6 +88,9 @@ class TransactionController extends Controller
 
         $validated['total_price'] = $validated['quantity'] * $validated['unit_price'];
 
+        // Kurangi stok barang
+        $this->adjustStock($validated['product_type'], $validated['age_variant'], -$validated['quantity']);
+
         Transaction::create($validated);
 
         return redirect()
@@ -90,6 +124,12 @@ class TransactionController extends Controller
 
         $validated['total_price'] = $validated['quantity'] * $validated['unit_price'];
 
+        // Kembalikan stok lama
+        $this->adjustStock($transaction->product_type, $transaction->age_variant, $transaction->quantity);
+        
+        // Kurangi stok baru
+        $this->adjustStock($validated['product_type'], $validated['age_variant'], -$validated['quantity']);
+
         $transaction->update($validated);
 
         return redirect()
@@ -99,6 +139,9 @@ class TransactionController extends Controller
 
     public function destroy(Transaction $transaction)
     {
+        // Kembalikan stok yang dihapus
+        $this->adjustStock($transaction->product_type, $transaction->age_variant, $transaction->quantity);
+
         $transaction->delete();
 
         return redirect()

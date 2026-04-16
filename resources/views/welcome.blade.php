@@ -32,6 +32,13 @@
                     <li><a href="#produk">Produk</a></li>
                     <li><a href="#testimoni">Testimoni</a></li>
                     <li><a href="#lokasi">Lokasi</a></li>
+                    <li class="login-nav-item">
+                        @if(Auth::guard('admin')->check())
+                            <a href="{{ route('admin.dashboard') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; color: var(--white);">Dashboard Admin</a>
+                        @else
+                            <a href="{{ route('admin.login') }}" class="btn btn-primary" style="padding: 0.5rem 1rem; color: var(--white);">Login Admin</a>
+                        @endif
+                    </li>
                 </ul>
                 
                 <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">

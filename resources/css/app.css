@@ -243,6 +243,15 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
     color: var(--primary-green);
 }
 
+.login-nav-item a::after {
+    display: none !important;
+}
+
+.login-nav-item a:hover {
+    color: var(--white) !important;
+    background-color: var(--dark-green) !important; /* Optional if button has a hover state, but btn-primary handles hover usually */
+}
+
 .mobile-menu-btn {
     display: none;
     flex-direction: column;

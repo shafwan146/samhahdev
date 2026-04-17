@@ -17,8 +17,11 @@ class ChickenStockController extends Controller
         $stocks = ChickenStock::orderBy('product_type')
             ->orderBy('age_variant')
             ->paginate(15);
+            
+        $productTypes = GeneralConfig::getProductTypes();
+        $ageVariants = GeneralConfig::getAgeVariants();
         
-        return view('admin.stocks.index', compact('stocks'));
+        return view('admin.stocks.index', compact('stocks', 'productTypes', 'ageVariants'));
     }
 
     public function create()

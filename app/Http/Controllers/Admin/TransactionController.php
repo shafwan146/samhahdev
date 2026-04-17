@@ -68,21 +68,24 @@ class TransactionController extends Controller
         $ageVariants = GeneralConfig::getAgeVariants();
         $transactionCode = Transaction::generateCode();
         
-        $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity')
+        $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity, MAX(price) as max_price')
             ->groupBy('product_type', 'age_variant')
             ->get();
             
         $availableStocks = [];
+        $stockPrices = [];
         foreach ($stocks as $stock) {
             if ($stock->total_quantity > 0) {
                 if (!isset($availableStocks[$stock->product_type])) {
                     $availableStocks[$stock->product_type] = [];
+                    $stockPrices[$stock->product_type] = [];
                 }
                 $availableStocks[$stock->product_type][$stock->age_variant] = $stock->total_quantity;
+                $stockPrices[$stock->product_type][$stock->age_variant] = $stock->max_price;
             }
         }
         
-        return view('admin.transactions.create', compact('productTypes', 'ageVariants', 'transactionCode', 'availableStocks'));
+        return view('admin.transactions.create', compact('productTypes', 'ageVariants', 'transactionCode', 'availableStocks', 'stockPrices'));
     }
 
     public function store(Request $request)
@@ -128,11 +131,12 @@ class TransactionController extends Controller
         $productTypes = GeneralConfig::getProductTypes();
         $ageVariants = GeneralConfig::getAgeVariants();
         
-        $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity')
+        $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity, MAX(price) as max_price')
             ->groupBy('product_type', 'age_variant')
             ->get();
             
         $availableStocks = [];
+        $stockPrices = [];
         foreach ($stocks as $stock) {
             $qty = $stock->total_quantity;
             // Tambahkan kuantitas dari transaksi saat ini agar bisa dipilih ulang tanpa validasi error
@@ -142,17 +146,20 @@ class TransactionController extends Controller
             if ($qty > 0) {
                 if (!isset($availableStocks[$stock->product_type])) {
                     $availableStocks[$stock->product_type] = [];
+                    $stockPrices[$stock->product_type] = [];
                 }
                 $availableStocks[$stock->product_type][$stock->age_variant] = $qty;
+                $stockPrices[$stock->product_type][$stock->age_variant] = $stock->max_price;
             }
         }
         
         // Jika tidak ada di stok sama sekali, tapi ada di transaksi ini (misal stok awal memang 0 tanpa transaksi lain)
         if (!isset($availableStocks[$transaction->product_type][$transaction->age_variant])) {
             $availableStocks[$transaction->product_type][$transaction->age_variant] = $transaction->quantity;
+            $stockPrices[$transaction->product_type][$transaction->age_variant] = $transaction->unit_price;
         }
         
-        return view('admin.transactions.edit', compact('transaction', 'productTypes', 'ageVariants', 'availableStocks'));
+        return view('admin.transactions.edit', compact('transaction', 'productTypes', 'ageVariants', 'availableStocks', 'stockPrices'));
     }
 
     public function update(Request $request, Transaction $transaction)

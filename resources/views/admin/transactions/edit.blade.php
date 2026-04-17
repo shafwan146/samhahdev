@@ -156,9 +156,11 @@
                             name="unit_price" 
                             class="form-control @error('unit_price') is-invalid @enderror"
                             value="{{ old('unit_price', $transaction->unit_price) }}"
-                            placeholder="Contoh: 50000"
+                            placeholder="Terisi otomatis"
                             min="0"
                             required
+                            readonly
+                            style="background: var(--light-gray);"
                         >
                         @error('unit_price')
                             <span class="form-error">{{ $message }}</span>
@@ -205,9 +207,12 @@
         const productTypes = @json($productTypes);
         const ageVariants = @json($ageVariants);
 
+        const stockPrices = @json($stockPrices);
+
         const productTypeSelect = document.getElementById('product_type');
         const ageVariantSelect = document.getElementById('age_variant');
         const quantityInput = document.getElementById('quantity');
+        const unitPriceInput = document.getElementById('unit_price');
         
         const oldProductType = '{{ old('product_type', $transaction->product_type) }}';
         const oldAgeVariant = '{{ old('age_variant', $transaction->age_variant) }}';
@@ -267,9 +272,17 @@
                 if (parseInt(quantityInput.value) > maxStock) {
                     quantityInput.value = maxStock;
                 }
+                // Set harga satuan
+                if (stockPrices[pType] && stockPrices[pType][aVar] !== undefined) {
+                    unitPriceInput.value = stockPrices[pType][aVar];
+                }
             } else {
                 quantityInput.max = '';
                 quantityHint.textContent = '';
+                // Don't clear unit_price immediately to allow retaining old value if selected product becomes invalid
+                if(!pType || !aVar) {
+                    unitPriceInput.value = '';
+                }
             }
         }
 

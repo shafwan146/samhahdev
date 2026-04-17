@@ -106,22 +106,20 @@ class Transaction extends Model
     {
         $months = [];
         
+        $productTypes = GeneralConfig::getProductTypes();
+        
         for ($month = 1; $month <= 12; $month++) {
-            $ayamPelung = self::where('product_type', 'ayam_pelung')
-                ->whereMonth('transaction_date', $month)
-                ->whereYear('transaction_date', $year)
-                ->sum('quantity');
+            $monthData = ['month' => $month];
 
-            $pitikPelung = self::where('product_type', 'pitik_pelung')
-                ->whereMonth('transaction_date', $month)
-                ->whereYear('transaction_date', $year)
-                ->sum('quantity');
+            foreach ($productTypes as $typeKey => $typeLabel) {
+                $quantity = self::where('product_type', $typeKey)
+                    ->whereMonth('transaction_date', $month)
+                    ->whereYear('transaction_date', $year)
+                    ->sum('quantity');
+                $monthData[$typeKey] = (int) $quantity;
+            }
 
-            $months[] = [
-                'month' => $month,
-                'ayam_pelung' => (int) $ayamPelung,
-                'pitik_pelung' => (int) $pitikPelung,
-            ];
+            $months[] = $monthData;
         }
 
         return $months;

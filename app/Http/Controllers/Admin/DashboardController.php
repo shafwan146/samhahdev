@@ -31,6 +31,8 @@ class DashboardController extends Controller
             ->whereYear('transaction_date', now()->year)
             ->sum('quantity');
 
+        $productTypes = \App\Models\GeneralConfig::getProductTypes();
+
         return view('admin.dashboard', compact(
             'totalStock',
             'totalProducts',
@@ -40,7 +42,8 @@ class DashboardController extends Controller
             'totalTransactions',
             'totalRevenue',
             'thisMonthSales',
-            'currentYear'
+            'currentYear',
+            'productTypes'
         ));
     }
 }

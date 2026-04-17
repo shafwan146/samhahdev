@@ -22,12 +22,27 @@
             </div>
         </div>
         @foreach($stockByType as $stock)
+            @php
+                $isAyam = \Illuminate\Support\Str::contains(strtolower($stock->product_type), 'ayam');
+                $isPitik = \Illuminate\Support\Str::contains(strtolower($stock->product_type), 'pitik');
+                
+                $iconClass = 'blue';
+                $emoji = '📦';
+                
+                if ($isAyam) {
+                    $iconClass = 'green';
+                    $emoji = '🐓';
+                } elseif ($isPitik) {
+                    $iconClass = 'orange';
+                    $emoji = '🐣';
+                }
+            @endphp
             <div class="stat-card">
-                <div class="stat-icon {{ $stock->product_type === 'ayam_pelung' ? 'green' : 'orange' }}">
-                    {{ $stock->product_type === 'ayam_pelung' ? '🐓' : '🐣' }}
+                <div class="stat-icon {{ $iconClass }}">
+                    {{ $emoji }}
                 </div>
                 <div class="stat-content">
-                    <h4>{{ $stock->product_type === 'ayam_pelung' ? 'Ayam Pelung' : 'Pitik Pelung' }}</h4>
+                    <h4>{{ $productTypes[$stock->product_type] ?? ucwords(str_replace('_', ' ', $stock->product_type)) }}</h4>
                     <div class="stat-value">{{ number_format($stock->total) }}</div>
                     <div class="stat-change">ekor</div>
                 </div>
@@ -124,32 +139,41 @@
 <script>
     // Real data from database
     const monthlySalesData = @json($monthlySales);
-    const ayamPelungData = monthlySalesData.map(item => item.ayam_pelung);
-    const pitikPelungData = monthlySalesData.map(item => item.pitik_pelung);
+    const productTypes = @json($productTypes);
+
+    const colors = [
+        { border: '#2E7D32', bg: 'rgba(46, 125, 50, 0.1)' },
+        { border: '#E65100', bg: 'rgba(230, 81, 0, 0.1)' },
+        { border: '#1976D2', bg: 'rgba(25, 118, 210, 0.1)' },
+        { border: '#C2185B', bg: 'rgba(194, 24, 91, 0.1)' },
+        { border: '#512DA8', bg: 'rgba(81, 45, 168, 0.1)' },
+        { border: '#0097A7', bg: 'rgba(0, 151, 167, 0.1)' },
+    ];
+    
+    const datasets = [];
+    let colorIndex = 0;
+    
+    for (const [key, label] of Object.entries(productTypes)) {
+        const data = monthlySalesData.map(item => item[key] || 0);
+        const color = colors[colorIndex % colors.length];
+        
+        datasets.push({
+            label: label + ' (ekor)',
+            data: data,
+            borderColor: color.border,
+            backgroundColor: color.bg,
+            tension: 0.4,
+            fill: true,
+        });
+        colorIndex++;
+    }
 
     const ctx = document.getElementById('salesChart').getContext('2d');
     const salesChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'],
-            datasets: [
-                {
-                    label: 'Ayam Pelung (ekor)',
-                    data: ayamPelungData,
-                    borderColor: '#2E7D32',
-                    backgroundColor: 'rgba(46, 125, 50, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                },
-                {
-                    label: 'Pitik Pelung (ekor)',
-                    data: pitikPelungData,
-                    borderColor: '#E65100',
-                    backgroundColor: 'rgba(230, 81, 0, 0.1)',
-                    tension: 0.4,
-                    fill: true,
-                }
-            ]
+            datasets: datasets
         },
         options: {
             responsive: true,

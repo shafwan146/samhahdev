@@ -105,9 +105,9 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge {{ $stock->product_type === 'ayam_pelung' ? 'badge-green' : 'badge-orange' }}">
-                                            {{ $stock->product_type === 'ayam_pelung' ? 'Ayam' : 'Pitik' }}
-                                        </span>
+                                        <div style="font-weight: 500;">
+                                            {{ $productTypes[$stock->product_type] ?? ucwords(str_replace('_', ' ', $stock->product_type)) }}
+                                        </div>
                                     </td>
                                     <td>{{ str_replace('_', ' ', ucfirst($stock->age_variant)) }}</td>
                                     <td class="font-bold">{{ number_format($stock->quantity) }}</td>

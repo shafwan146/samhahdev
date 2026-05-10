@@ -67,11 +67,11 @@ class TransactionController extends Controller
         $productTypes = GeneralConfig::getProductTypes();
         $ageVariants = GeneralConfig::getAgeVariants();
         $transactionCode = Transaction::generateCode();
-        
+
         $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity, MAX(price) as max_price')
             ->groupBy('product_type', 'age_variant')
             ->get();
-            
+
         $availableStocks = [];
         $stockPrices = [];
         foreach ($stocks as $stock) {
@@ -84,7 +84,7 @@ class TransactionController extends Controller
                 $stockPrices[$stock->product_type][$stock->age_variant] = $stock->max_price;
             }
         }
-        
+
         return view('admin.transactions.create', compact('productTypes', 'ageVariants', 'transactionCode', 'availableStocks', 'stockPrices'));
     }
 
@@ -119,6 +119,8 @@ class TransactionController extends Controller
         // Kurangi stok barang
         $this->adjustStock($validated['product_type'], $validated['age_variant'], -$validated['quantity']);
 
+        $validated['admin_id'] = auth('admin')->id();
+
         Transaction::create($validated);
 
         return redirect()
@@ -130,11 +132,11 @@ class TransactionController extends Controller
     {
         $productTypes = GeneralConfig::getProductTypes();
         $ageVariants = GeneralConfig::getAgeVariants();
-        
+
         $stocks = ChickenStock::selectRaw('product_type, age_variant, SUM(quantity) as total_quantity, MAX(price) as max_price')
             ->groupBy('product_type', 'age_variant')
             ->get();
-            
+
         $availableStocks = [];
         $stockPrices = [];
         foreach ($stocks as $stock) {
@@ -152,13 +154,13 @@ class TransactionController extends Controller
                 $stockPrices[$stock->product_type][$stock->age_variant] = $stock->max_price;
             }
         }
-        
+
         // Jika tidak ada di stok sama sekali, tapi ada di transaksi ini (misal stok awal memang 0 tanpa transaksi lain)
         if (!isset($availableStocks[$transaction->product_type][$transaction->age_variant])) {
             $availableStocks[$transaction->product_type][$transaction->age_variant] = $transaction->quantity;
             $stockPrices[$transaction->product_type][$transaction->age_variant] = $transaction->unit_price;
         }
-        
+
         return view('admin.transactions.edit', compact('transaction', 'productTypes', 'ageVariants', 'availableStocks', 'stockPrices'));
     }
 
@@ -197,7 +199,7 @@ class TransactionController extends Controller
 
         // Kembalikan stok lama
         $this->adjustStock($transaction->product_type, $transaction->age_variant, $transaction->quantity);
-        
+
         // Kurangi stok baru
         $this->adjustStock($validated['product_type'], $validated['age_variant'], -$validated['quantity']);
 
@@ -223,7 +225,7 @@ class TransactionController extends Controller
     public function export()
     {
         $filename = 'transaksi_' . date('Y-m-d_His') . '.xlsx';
-        
+
         return Excel::download(new TransactionExport, $filename);
     }
 }

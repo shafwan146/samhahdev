@@ -12,6 +12,7 @@ class Transaction extends Model
 
     protected $fillable = [
         'transaction_code',
+        'admin_id',
         'customer_name',
         'customer_phone',
         'product_type',
@@ -28,6 +29,14 @@ class Transaction extends Model
         'total_price' => 'decimal:2',
         'transaction_date' => 'date',
     ];
+
+    /**
+     * Get the admin that recorded the transaction.
+     */
+    public function admin()
+    {
+        return $this->belongsTo(Admin::class);
+    }
 
     /**
      * Generate unique transaction code
@@ -88,7 +97,7 @@ class Transaction extends Model
     public function scopeOfMonth($query, int $month, int $year)
     {
         return $query->whereMonth('transaction_date', $month)
-                     ->whereYear('transaction_date', $year);
+            ->whereYear('transaction_date', $year);
     }
 
     /**
@@ -105,9 +114,9 @@ class Transaction extends Model
     public static function getMonthlySales(int $year): array
     {
         $months = [];
-        
+
         $productTypes = GeneralConfig::getProductTypes();
-        
+
         for ($month = 1; $month <= 12; $month++) {
             $monthData = ['month' => $month];
 

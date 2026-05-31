@@ -50,9 +50,9 @@
                             <tr>
                                 <th>Key</th>
                                 <th>Label</th>
-                                <th>Deskripsi</th>
+                                <th class="hide-mobile">Deskripsi</th>
                                 <th>Status</th>
-                                <th>Dibuat</th>
+                                <th class="hide-mobile">Dibuat</th>
                                 <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
@@ -67,7 +67,7 @@
                                     <td>
                                         <strong>{{ $config->label }}</strong>
                                     </td>
-                                    <td class="text-muted">{{ $config->description ?: '-' }}</td>
+                                    <td class="text-muted hide-mobile">{{ $config->description ?: '-' }}</td>
                                     <td>
                                         @if($config->is_active)
                                             <span class="badge badge-success">Aktif</span>
@@ -75,7 +75,7 @@
                                             <span class="badge badge-gray">Nonaktif</span>
                                         @endif
                                     </td>
-                                    <td class="text-muted whitespace-nowrap">{{ $config->created_at->format('d M Y') }}</td>
+                                    <td class="text-muted whitespace-nowrap hide-mobile">{{ $config->created_at->format('d M Y') }}</td>
                                     <td>
                                         <div class="actions" style="justify-content: flex-end;">
                                             <a href="{{ route('admin.configs.edit', $config) }}" class="btn btn-secondary btn-icon btn-sm" title="Edit">

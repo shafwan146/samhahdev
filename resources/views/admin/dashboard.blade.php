@@ -134,6 +134,14 @@
     </div>
 @endsection
 
+@push('styles')
+<style>
+    @media (max-width: 480px) {
+        .chart-container { height: 220px !important; }
+    }
+</style>
+@endpush
+
 @push('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>

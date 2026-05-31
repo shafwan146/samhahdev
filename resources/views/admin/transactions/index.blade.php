@@ -44,7 +44,7 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>Kode</th>
+                                <th class="hide-mobile">Kode</th>
                                 <th>Tanggal</th>
                                 <th>Customer</th>
                                 <th>Produk</th>
@@ -56,7 +56,7 @@
                         <tbody>
                             @foreach($transactions as $transaction)
                                 <tr>
-                                    <td>
+                                    <td class="hide-mobile">
                                         <code style="background: var(--light-gray); padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem;">
                                             {{ $transaction->transaction_code }}
                                         </code>

@@ -1464,6 +1464,17 @@
             .card-footer {
                 padding: 0.75rem;
             }
+
+            .btn-group,
+            .form-actions {
+                flex-direction: column;
+            }
+
+            .btn-group .btn,
+            .form-actions .btn {
+                width: 100%;
+                justify-content: center;
+            }
         }
 
         /* =========================================

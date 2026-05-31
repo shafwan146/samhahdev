@@ -44,20 +44,20 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>#</th>
+                                <th class="hide-mobile">#</th>
                                 <th>Produk</th>
                                 <th>Jenis</th>
                                 <th>Umur</th>
                                 <th>Stok</th>
                                 <th>Harga</th>
-                                <th>Catatan</th>
+                                <th class="hide-mobile">Catatan</th>
                                 <th class="text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($stocks as $index => $stock)
                                 <tr>
-                                    <td class="text-muted">{{ $stocks->firstItem() + $index }}</td>
+                                    <td class="text-muted hide-mobile">{{ $stocks->firstItem() + $index }}</td>
                                     <td>
                                         <div class="table-product">
                                             <div class="table-product-icon" style="background: {{ $stock->product_type === 'ayam_pelung' ? 'var(--light-green)' : 'var(--light-orange)' }}">
@@ -83,7 +83,7 @@
                                         <span class="text-muted">ekor</span>
                                     </td>
                                     <td class="whitespace-nowrap">{{ $stock->formatted_price }}</td>
-                                    <td class="text-muted">{{ Str::limit($stock->notes, 25) ?: '-' }}</td>
+                                    <td class="text-muted hide-mobile">{{ Str::limit($stock->notes, 25) ?: '-' }}</td>
                                     <td>
                                         <div class="actions" style="justify-content: flex-end;">
                                             <a href="{{ route('admin.stocks.edit', $stock) }}" class="btn btn-secondary btn-icon btn-sm" title="Edit">

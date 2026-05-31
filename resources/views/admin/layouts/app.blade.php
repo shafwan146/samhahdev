@@ -1260,10 +1260,12 @@
 
             .page-header-actions {
                 width: 100%;
+                display: flex;
+                gap: 0.5rem;
             }
 
-            .page-header-actions .btn {
-                width: 100%;
+            .page-header-actions .btn:last-child {
+                flex: 1;
                 justify-content: center;
             }
         }

@@ -148,6 +148,7 @@
                     </div>
                     <div class="product-content">
                         <h3>Ayam Pelung</h3>
+                        <div class="product-price-label">Mulai dari Rp80.000</div>
                         <p>
                             Ayam Pelung Samhah Farm dikenal dengan badan yang lebih besar dan daging yang lebih padat, 
                             sehingga hasil olahannya mantap untuk berbagai menu. Dipelihara dengan perawatan yang baik 
@@ -171,6 +172,7 @@
                     </div>
                     <div class="product-content">
                         <h3>Pitik Pelung (DOC)</h3>
+                        <div class="product-price-label">Mulai dari Rp35.000</div>
                         <p>
                             Pitik Pelung 1-2 bulan adalah bibit ayam pelung usia starter yang sudah lebih kuat dan 
                             mudah beradaptasi. Cocok untuk pembesaran hingga panen atau dipelihara sebagai ayam 

@@ -701,6 +701,13 @@
             gap: 0.5rem;
         }
 
+        .form-actions {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
         /* =========================================
            Forms
            ========================================= */

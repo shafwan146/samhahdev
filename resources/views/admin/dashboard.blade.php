@@ -87,7 +87,7 @@
                                 <th>Umur</th>
                                 <th>Stok</th>
                                 <th>Harga</th>
-                                <th>Update</th>
+                                <th class="hide-mobile">Update</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -112,7 +112,7 @@
                                     <td>{{ str_replace('_', ' ', ucfirst($stock->age_variant)) }}</td>
                                     <td class="font-bold">{{ number_format($stock->quantity) }}</td>
                                     <td class="whitespace-nowrap">{{ $stock->formatted_price }}</td>
-                                    <td class="text-muted">{{ $stock->updated_at->diffForHumans() }}</td>
+                                    <td class="text-muted hide-mobile">{{ $stock->updated_at->diffForHumans() }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

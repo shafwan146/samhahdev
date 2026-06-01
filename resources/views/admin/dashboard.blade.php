@@ -51,7 +51,7 @@
     </div>
 
     <!-- Sales Chart -->
-    <div class="card" style="margin-bottom: 1.5rem;">
+    <div class="card dashboard-card-gap" style="margin-bottom: 1.5rem;">
         <div class="card-header">
             <h3>
                 <span>📈</span>
@@ -136,8 +136,13 @@
 
 @push('styles')
 <style>
+    @media (max-width: 768px) {
+        .chart-container { height: 240px !important; }
+        .stats-grid { margin-bottom: 1rem; }
+        .dashboard-card-gap { margin-bottom: 1rem !important; }
+    }
     @media (max-width: 480px) {
-        .chart-container { height: 220px !important; }
+        .chart-container { height: 200px !important; }
     }
 </style>
 @endpush
@@ -176,6 +181,8 @@
         colorIndex++;
     }
 
+    const isMobile = window.innerWidth <= 768;
+
     const ctx = document.getElementById('salesChart').getContext('2d');
     const salesChart = new Chart(ctx, {
         type: 'line',
@@ -188,18 +195,32 @@
             maintainAspectRatio: false,
             plugins: {
                 legend: {
-                    position: 'top',
+                    position: isMobile ? 'bottom' : 'top',
+                    labels: {
+                        boxWidth: isMobile ? 10 : 40,
+                        padding: isMobile ? 8 : 10,
+                        font: { size: isMobile ? 10 : 12 }
+                    }
                 },
                 title: {
                     display: false,
                 }
             },
             scales: {
+                x: {
+                    ticks: {
+                        font: { size: isMobile ? 9 : 11 },
+                        maxRotation: isMobile ? 45 : 0,
+                    }
+                },
                 y: {
                     beginAtZero: true,
                     title: {
-                        display: true,
+                        display: !isMobile,
                         text: 'Jumlah Terjual'
+                    },
+                    ticks: {
+                        font: { size: isMobile ? 9 : 11 }
                     }
                 }
             },

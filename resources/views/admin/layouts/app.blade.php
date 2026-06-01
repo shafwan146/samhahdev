@@ -52,6 +52,7 @@
             
             --sidebar-width: 260px;
             --topbar-height: 64px;
+            --bottom-nav-height: 64px;
             
             --transition-fast: 150ms ease;
             --transition-normal: 250ms ease;
@@ -70,6 +71,8 @@
             color: var(--text-dark);
             line-height: 1.5;
             -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            max-width: 100vw;
         }
 
         /* =========================================
@@ -452,7 +455,7 @@
            ========================================= */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 1rem;
             margin-bottom: 1.5rem;
         }
@@ -1226,7 +1229,142 @@
         }
 
         /* =========================================
-           Responsive - Mobile Menu
+           Mobile TopBar
+           ========================================= */
+        .mobile-topbar {
+            display: none;
+            background: linear-gradient(135deg, #2E7D32 0%, #1B5E20 100%);
+            padding: 0 1rem;
+            height: 56px;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            flex-shrink: 0;
+            width: 100%;
+        }
+
+        .mobile-topbar-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .mobile-topbar-brand img {
+            height: 26px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .mobile-topbar-brand-name {
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        .mobile-topbar-right {
+            display: flex;
+            align-items: center;
+            gap: 0.625rem;
+        }
+
+        .mobile-topbar-page-label {
+            font-size: 0.7rem;
+            font-weight: 500;
+            color: rgba(255,255,255,0.75);
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+        }
+
+        .mobile-topbar-avatar {
+            width: 32px;
+            height: 32px;
+            background: var(--soft-orange);
+            color: var(--text-dark);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        /* =========================================
+           Mobile Bottom Nav
+           ========================================= */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            z-index: 9999;
+            background: #FFFFFF;
+            border-top: 1px solid #E5E7EB;
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.1);
+            height: 64px;
+            align-items: stretch;
+        }
+
+        .mobile-bottom-nav-inner {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        .mobile-nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            text-decoration: none;
+            color: var(--text-muted);
+            transition: color var(--transition-fast);
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .mobile-nav-item.active {
+            color: var(--primary-green);
+        }
+
+        .mobile-nav-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: var(--primary-green);
+            border-radius: 0 0 3px 3px;
+            transition: width var(--transition-fast);
+        }
+
+        .mobile-nav-item.active::before {
+            width: 32px;
+        }
+
+        .mobile-nav-icon {
+            font-size: 1.375rem;
+            line-height: 1;
+        }
+
+        .mobile-nav-label {
+            font-size: 0.6rem;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
+        }
+
+        /* =========================================
+           Responsive - Tablet (drawer sidebar)
            ========================================= */
         @media (max-width: 1024px) {
             .sidebar {
@@ -1439,10 +1577,6 @@
                 align-items: center;
             }
 
-            .content-area {
-                padding: 0.75rem;
-            }
-
             .pagination {
                 gap: 0.25rem;
                 flex-wrap: wrap;
@@ -1493,6 +1627,40 @@
         .mb-2 { margin-bottom: 0.5rem; }
         .mb-4 { margin-bottom: 1rem; }
         .hidden { display: none; }
+
+        /* =========================================
+           Mobile Layout Override — harus di paling akhir
+           ========================================= */
+        @media screen and (max-width: 768px) {
+            /* Sembunyikan topbar desktop, tampilkan mobile topbar */
+            .topbar { display: none !important; }
+            .mobile-topbar { display: flex !important; }
+
+            /* Sembunyikan sidebar — bottom nav yang handle navigasi */
+            .sidebar { display: none !important; }
+            .sidebar-overlay { display: none !important; }
+            .main-content { margin-left: 0 !important; width: 100% !important; }
+
+            /* Tampilkan bottom nav */
+            .mobile-bottom-nav { display: flex !important; }
+
+            /* Padding bawah content area agar tidak tertutup bottom nav */
+            .content-area {
+                padding-bottom: 80px !important;
+                padding-left: 0.875rem !important;
+                padding-right: 0.875rem !important;
+                padding-top: 0.875rem !important;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .content-area {
+                padding-bottom: 80px !important;
+                padding-left: 0.75rem !important;
+                padding-right: 0.75rem !important;
+                padding-top: 0.75rem !important;
+            }
+        }
     </style>
     @stack('styles')
 </head>
@@ -1565,6 +1733,20 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <!-- Mobile TopBar (≤768px) -->
+            <header class="mobile-topbar">
+                <div class="mobile-topbar-brand">
+                    <img src="{{ asset('images/logo-transparent.png') }}" alt="Samhah Farm">
+                    <span class="mobile-topbar-brand-name">Samhah Farm</span>
+                </div>
+                <div class="mobile-topbar-right">
+                    <span class="mobile-topbar-page-label">@yield('title', 'Dashboard')</span>
+                    <div class="mobile-topbar-avatar">
+                        {{ strtoupper(substr(Auth::guard('admin')->user()->name, 0, 1)) }}
+                    </div>
+                </div>
+            </header>
+
             <header class="topbar">
                 <div class="topbar-left">
                     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Menu">
@@ -1589,6 +1771,36 @@
             </div>
         </main>
     </div>
+
+    <!-- Mobile Bottom Nav (≤768px) -->
+    <nav class="mobile-bottom-nav" aria-label="Navigasi Mobile">
+        <div class="mobile-bottom-nav-inner">
+            <a href="{{ route('admin.dashboard') }}"
+               class="mobile-nav-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"
+               aria-label="Dashboard">
+                <span class="mobile-nav-icon">📊</span>
+                <span class="mobile-nav-label">Dashboard</span>
+            </a>
+            <a href="{{ route('admin.stocks.index') }}"
+               class="mobile-nav-item {{ request()->routeIs('admin.stocks.*') ? 'active' : '' }}"
+               aria-label="Stok">
+                <span class="mobile-nav-icon">🐔</span>
+                <span class="mobile-nav-label">Stok</span>
+            </a>
+            <a href="{{ route('admin.transactions.index') }}"
+               class="mobile-nav-item {{ request()->routeIs('admin.transactions.*') ? 'active' : '' }}"
+               aria-label="Transaksi">
+                <span class="mobile-nav-icon">💰</span>
+                <span class="mobile-nav-label">Transaksi</span>
+            </a>
+            <a href="{{ route('admin.configs.index') }}"
+               class="mobile-nav-item {{ request()->routeIs('admin.configs.*') ? 'active' : '' }}"
+               aria-label="Konfigurasi">
+                <span class="mobile-nav-icon">⚙️</span>
+                <span class="mobile-nav-label">Konfigurasi</span>
+            </a>
+        </div>
+    </nav>
 
     <!-- Delete Confirmation Modal -->
     <div class="modal-backdrop" id="deleteModal">

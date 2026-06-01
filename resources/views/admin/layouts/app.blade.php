@@ -1292,6 +1292,26 @@
             flex-shrink: 0;
         }
 
+        .mobile-topbar-logout {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            background: rgba(255,255,255,0.15);
+            border: 1px solid rgba(255,255,255,0.25);
+            border-radius: 8px;
+            color: #FFFFFF;
+            cursor: pointer;
+            transition: background 150ms ease;
+            flex-shrink: 0;
+        }
+
+        .mobile-topbar-logout:hover,
+        .mobile-topbar-logout:active {
+            background: rgba(255,255,255,0.28);
+        }
+
         /* =========================================
            Mobile Bottom Nav
            ========================================= */
@@ -1744,6 +1764,14 @@
                     <div class="mobile-topbar-avatar">
                         {{ strtoupper(substr(Auth::guard('admin')->user()->name, 0, 1)) }}
                     </div>
+                    <form action="{{ route('admin.logout') }}" method="POST" style="display:flex;">
+                        @csrf
+                        <button type="submit" class="mobile-topbar-logout" title="Logout">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4M16 17l5-5-5-5M21 12H9"/>
+                            </svg>
+                        </button>
+                    </form>
                 </div>
             </header>
 
